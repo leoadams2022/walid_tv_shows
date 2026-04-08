@@ -16,12 +16,13 @@ import {
 export default function Shows() {
   const [openModal, setOpenModal] = React.useState(false);
 
-  const { shows, showId, setShowId, addShowById } = useStore(
+  const { shows, showId, setShowId, addShowById, removeShowById } = useStore(
     useShallow((s) => ({
       shows: s.shows,
       showId: s.showId,
       setShowId: s.setShowId,
       addShowById: s.addShowById,
+      removeShowById: s.removeShowById,
     })),
   );
   const [data, setData] = React.useState(null);
@@ -111,9 +112,16 @@ export default function Shows() {
                 </div>
               </Badge>
             </div>
-            <div className=" absolute bottom-12 left-0 w-fit flex flex-col justify-between p-1 gap-1">
+            <div className=" absolute bottom-12 left-0 w-full flex justify-between p-1 gap-1">
               <Badge color="success" size="xs">
                 {s.first_air_date}
+              </Badge>
+              <Badge
+                onClick={() => removeShowById(s.id)}
+                color="failure"
+                size="xs"
+              >
+                Delete
               </Badge>
             </div>
           </div>
