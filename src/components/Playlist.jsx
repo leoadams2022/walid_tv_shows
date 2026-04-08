@@ -1,0 +1,230 @@
+import React from "react";
+
+import { Badge } from "flowbite-react";
+
+import useStore from "../zustand/useStore";
+import { useShallow } from "zustand/shallow";
+
+import { FaStar, FaInfo } from "react-icons/fa";
+
+import useScrollToTop from "../hooks/useScrollToTop";
+
+import { getTVDetails, getTVSeasonDetails } from "../tmdb/tv";
+
+import FloatingControls from "./FloatingControls";
+
+const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
+  const [data, setData] = React.useState(null);
+  const {
+    season,
+    episode,
+    setSeason,
+    setEpisode,
+    setProgress,
+    setShowSidebar,
+    setActiveSection,
+    setSeasonToView,
+    setEpisodeToView,
+    lastPlayedSeason,
+    lastPlayedEpisode,
+    showId,
+  } = useStore(
+    useShallow((s) => ({
+      season: s.season,
+      episode: s.episode,
+      setSeason: s.setSeason,
+      setEpisode: s.setEpisode,
+      setProgress: s.setProgress,
+      setShowSidebar: s.setShowSidebar,
+      setActiveSection: s.setActiveSection,
+      setSeasonToView: s.setSeasonToView,
+      setEpisodeToView: s.setEpisodeToView,
+      lastPlayedSeason: s.lastPlayedSeason,
+      lastPlayedEpisode: s.lastPlayedEpisode,
+      showId: s.showId,
+    })),
+  );
+  // const getPlayerTime = useStore(useShallow((s) => s.getPlayerTime()));
+
+  const episodesListRef = React.useRef(null);
+  // isVisible,
+  const { scrollToTop, scrollToElementById } = useScrollToTop(
+    episodesListRef,
+    100,
+  );
+
+  //! HIMYM_SHOW_DETAILS
+  // const episodesList = React.useMemo(
+  //   () =>
+  //     HIMYM_SHOW_DETAILS.seasons.flatMap((season) =>
+  //       season.data.episodes.map((episode) => ({
+  //         ...episode,
+  //         season_number: season.season_number,
+  //       })),
+  //     ),
+  //   [],
+  // );
+  const playEpisode = (ep) => {
+    setProgress(0);
+    setSeason(ep.season_number);
+    setEpisode(ep.episode_number);
+    setShowSidebar(false);
+  };
+  const showEpisodeInfo = (e, ep) => {
+    e.stopPropagation();
+    setSeasonToView(ep.season_number);
+    setEpisodeToView(ep.episode_number);
+    setActiveSection(2);
+  };
+
+  const playLastPlayedEpisode = () => {
+    if (
+      (lastPlayedSeason !== 0 && !lastPlayedSeason) ||
+      (lastPlayedEpisode !== 0 && !lastPlayedEpisode)
+    ) {
+      console.log(
+        "no last played episode",
+        lastPlayedSeason,
+        lastPlayedEpisode,
+      );
+      return;
+    }
+    setSeason(lastPlayedSeason);
+    setEpisode(lastPlayedEpisode);
+  };
+
+  const stopPlaying = () => {
+    setSeason(null);
+    setEpisode(null);
+  };
+
+  React.useEffect(() => {
+    (async () => {
+      const localData = localStorage.getItem(`${showId}_all_episodes`);
+      if (localData) {
+        // console.log("episode_info_ local: ", JSON.parse(localData));
+        const ld = JSON.parse(localData);
+        setData(ld);
+        return;
+      }
+      const show_info_seasons =
+        JSON.parse(localStorage.getItem(`${showId}_show_info`)).seasons ||
+        (await getTVDetails(showId).seasons);
+
+      const seasonPromises = show_info_seasons.map(async (s) => {
+        let season_episodes;
+        const local_season = localStorage.getItem(
+          `${showId}_season_info_${s.season_number}`,
+        );
+
+        if (local_season) {
+          const local_season_episodes = JSON.parse(local_season).episodes;
+          season_episodes = local_season_episodes;
+          // console.log("local_season_episodes: ", local_season_episodes);
+        } else {
+          const fetched_season_episodes = await getTVSeasonDetails(
+            showId,
+            s.season_number,
+          );
+          season_episodes = fetched_season_episodes.episodes;
+          // console.log("fetched_season_episodes: ", fetched_season_episodes);
+        }
+
+        return season_episodes.map((e) => ({
+          ...e,
+          season_number: s.season_number,
+        }));
+      });
+
+      const allSeasonEpisodes = await Promise.all(seasonPromises);
+      const all_episodes = allSeasonEpisodes.flat();
+      localStorage.setItem(
+        `${showId}_all_episodes`,
+        JSON.stringify(all_episodes),
+      );
+      // console.log("all_epi?sodes: ", all_episodes);
+      setData(all_episodes);
+    })();
+  }, [showId]);
+
+  if (!data) return <div>Loading Play List...</div>;
+
+  return (
+    <div
+      ref={episodesListRef}
+      className="py-4 px-6 w-full h-[calc(100svh-4rem)] overflow-y-auto bg flex flex-col gap-4 relative"
+    >
+      {/* Episodes */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="text-2xl font-semibold ">Episodes</div>
+        {data.map((ep) => (
+          <div
+            onClick={() => playEpisode(ep)}
+            key={ep.id}
+            id={`s${ep.season_number}e${ep.episode_number}`}
+            className={` p-3 sm:p-4 rounded-lg  bg-white shadow-md dark:bg-gray-800 cursor-pointer ${season === ep.season_number && episode === ep.episode_number ? "border-2 border-sky-500" : lastPlayedSeason === ep.season_number && lastPlayedEpisode === ep.episode_number ? "border-2 border-amber-500" : "border border-gray-200 dark:border-gray-700 "}`}
+          >
+            <div className="flex gap-2 items-center">
+              <div className="flex-1 flex flex-wrap flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+                <div className="flex gap-2 items-center text-xs sm:text-sm md:text-base lg:text-lg line-clamp-1">
+                  <p className="font-bold bg-black text-white px-2 py-0.5 rounded-md">
+                    S{ep.season_number} E{ep.episode_number}
+                  </p>
+                  <p>{ep.name}</p>
+                </div>
+                <div className="flex flex-wrap gap-2 items-center">
+                  {season === ep.season_number &&
+                    episode === ep.episode_number && (
+                      <Badge color="info" size="xs">
+                        Playing
+                      </Badge>
+                    )}
+                  {ep.air_date ? (
+                    <Badge color="success" size="xs">
+                      <div className=" ">{ep.air_date}</div>
+                    </Badge>
+                  ) : null}
+                  {ep.vote_average ? (
+                    <Badge color="warning" size="xs">
+                      <div className="flex items-center gap-1">
+                        {ep.vote_average} <FaStar />
+                      </div>
+                    </Badge>
+                  ) : null}
+
+                  <Badge
+                    onClick={(e) => showEpisodeInfo(e, ep)}
+                    color="info"
+                    size="xs"
+                  >
+                    <div className="flex items-center gap-1">
+                      Info <FaInfo />
+                    </div>
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <FloatingControls
+        isVisible={true}
+        scrollToTop={scrollToTop}
+        scrollToPlayingEpisode={() =>
+          scrollToElementById(`s${season}e${episode}`)
+        }
+        scrollToLastPlayedEpisode={() =>
+          scrollToElementById(`s${lastPlayedSeason}e${lastPlayedEpisode}`)
+        }
+        episode={episode}
+        playNext={playNextEpisode}
+        playPrevious={playPreviousEpisode}
+        stopPlaying={stopPlaying}
+        playLastPlayedEpisode={playLastPlayedEpisode}
+      />
+    </div>
+  );
+};
+
+export default Playlist;
