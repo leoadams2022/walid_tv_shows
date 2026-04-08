@@ -117,7 +117,10 @@ export default function Shows() {
                 {s.first_air_date}
               </Badge>
               <Badge
-                onClick={() => removeShowById(s.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeShowById(s.id);
+                }}
                 color="failure"
                 size="xs"
               >
