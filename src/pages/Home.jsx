@@ -12,7 +12,12 @@ import { AiOutlineFullscreen, AiOutlineFullscreenExit } from "react-icons/ai";
 import { SiMyshows } from "react-icons/si";
 import { MdViewComfy } from "react-icons/md";
 
-import { getTVDetails, getTVEpisodeDetails } from "../tmdb/tv";
+import {
+  getTVDetails,
+  // getTVDetails,
+  getTVEpisodeDetails,
+  getTVSeasonDetails,
+} from "../tmdb/tv";
 
 import ShowInfo from "../components/ShowInfo";
 import Seasons from "../components/Seasons";
@@ -138,33 +143,31 @@ export default function Home() {
 
   const playNextEpisode = () => {
     //! HIMYM_SHOW_DETAILS;
-    const currentSeasonData = data.seasons.find(
-      (sea) => sea.season_number === season,
+    let nextEpisode = data.find(
+      (ep) => ep.season_number === season && ep.episode_number === episode + 1,
     );
 
-    if (!currentSeasonData) return;
-
-    const totalEpisodesInSeason = currentSeasonData.episodes.length;
-
-    if (episode < totalEpisodesInSeason) {
+    if (nextEpisode) {
       // Move to next episode in same season
       setProgress(0);
       setTimeout(() => {
         setEpisode(episode + 1);
       }, 100);
     } else {
-      // Check if there is a next season
-      const nextSeasonNumber = season + 1;
-      //! HIMYM_SHOW_DETAILS
-      const nextSeasonExists = data.seasons.some(
-        (sea) => sea.season_number === nextSeasonNumber,
-      );
+      nextEpisode = data.reduce((highest, current) => {
+        if (current.season_number === season + 1) {
+          if (!highest || current.episode_number < highest.episode_number) {
+            return current;
+          }
+        }
+        return highest;
+      }, null);
 
-      if (nextSeasonExists) {
+      if (nextEpisode) {
         setProgress(0);
         setTimeout(() => {
-          setSeason(nextSeasonNumber);
-          setEpisode(1); // Start at first episode of next season
+          setSeason(nextEpisode.season_number);
+          setEpisode(nextEpisode.episode_number);
         }, 100);
       }
     }
@@ -177,29 +180,21 @@ export default function Home() {
         setEpisode(episode - 1);
       }, 100);
     } else {
-      // 2. We are at Episode 1, check if there is a previous season
-      const previousSeasonNumber = season - 1;
+      const previousEpisode = data.reduce((highest, current) => {
+        if (current.season_number === season - 1) {
+          if (!highest || current.episode_number > highest.episode_number) {
+            return current;
+          }
+        }
+        return highest;
+      }, null);
 
-      // Find the data for the previous season to know how many episodes it has
-      //! HIMYM_SHOW_DETAILS
-      const previousSeasonData = data.seasons.find(
-        (sea) => sea.season_number === previousSeasonNumber,
-      );
-
-      if (previousSeasonData) {
+      if (previousEpisode) {
         setProgress(0);
         setTimeout(() => {
-          // 3. Set the season to the previous one
-          setSeason(previousSeasonNumber);
-
-          // 4. Set the episode to the LAST episode of that previous season
-          const lastEpisodeOfPrevSeason =
-            previousSeasonData.data.episodes.length;
-          setEpisode(lastEpisodeOfPrevSeason);
+          setSeason(previousEpisode.season_number);
+          setEpisode(previousEpisode.episode_number);
         }, 100);
-      } else {
-        // Optional: You are at S1E1. You could restart the episode or show a toast.
-        console.log("You are at the beginning of the series.");
       }
     }
   };
@@ -229,9 +224,7 @@ export default function Home() {
         local_playingEpisode = fetched_playingEpisode;
       }
       const playingEpisode = local_playingEpisode;
-      //  data.seasons
-      //   .find((s) => s.season_number === season)
-      //   .data.episodes.find((e) => e.episode_number === episode);
+
       if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: `${episode} ${playingEpisode.name}`,
@@ -297,17 +290,50 @@ export default function Home() {
 
   React.useEffect(() => {
     (async () => {
-      const localData = localStorage.getItem(`${showId}_show_info`);
+      const localData = localStorage.getItem(`${showId}_all_episodes`);
       if (localData) {
-        // console.log("show_info: ", JSON.parse(localData));
-        setData(JSON.parse(localData));
+        // console.log("episode_info_ local: ", JSON.parse(localData));
+        const ld = JSON.parse(localData);
+        setData(ld);
         return;
       }
-      const d = await getTVDetails(showId, {
-        append_to_response: "images,credits",
+      const show_info_seasons =
+        JSON.parse(localStorage.getItem(`${showId}_show_info`)).seasons ||
+        (await getTVDetails(showId).seasons);
+
+      const seasonPromises = show_info_seasons.map(async (s) => {
+        let season_episodes;
+        const local_season = localStorage.getItem(
+          `${showId}_season_info_${s.season_number}`,
+        );
+
+        if (local_season) {
+          const local_season_episodes = JSON.parse(local_season).episodes;
+          season_episodes = local_season_episodes;
+          // console.log("local_season_episodes: ", local_season_episodes);
+        } else {
+          const fetched_season_episodes = await getTVSeasonDetails(
+            showId,
+            s.season_number,
+          );
+          season_episodes = fetched_season_episodes.episodes;
+          // console.log("fetched_season_episodes: ", fetched_season_episodes);
+        }
+
+        return season_episodes.map((e) => ({
+          ...e,
+          season_number: s.season_number,
+        }));
       });
-      localStorage.setItem(`${showId}_show_info`, JSON.stringify(d));
-      setData(d);
+
+      const allSeasonEpisodes = await Promise.all(seasonPromises);
+      const all_episodes = allSeasonEpisodes.flat();
+      localStorage.setItem(
+        `${showId}_all_episodes`,
+        JSON.stringify(all_episodes),
+      );
+      // console.log("all_epi?sodes: ", all_episodes);
+      setData(all_episodes);
     })();
   }, [showId]);
 
