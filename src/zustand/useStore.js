@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-export const INITIAL_shows = [
+const INITIAL_shows = [
   {
     id: 1100,
     // name: "How I Met Your Mother",
@@ -16,6 +16,50 @@ export const INITIAL_shows = [
   {
     id: 1418,
     // name: "The Big Bang Theory",
+  },
+  {
+    id: 3452,
+    // name: "Frasier",
+  },
+  {
+    id: 2316,
+    // name: "The Office",
+  },
+  {
+    id: 39340,
+    // name: "2 Broke Girls",
+  },
+  {
+    id: 8592,
+    // name: "Parks And Recreation",
+  },
+  {
+    id: 2691,
+    // name: "Tow and A Half Men",
+  },
+  {
+    id: 52,
+    // name: "That 70's Show",
+  },
+  {
+    id: 1421,
+    // name: "Modern Family",
+  },
+  {
+    id: 4556,
+    // name: "Scrubs",
+  },
+  {
+    id: 2710,
+    // name: "It's Always Sunny in Philadelphia",
+  },
+  {
+    id: 49011,
+    // name: "Mom",
+  },
+  {
+    id: 71728,
+    // name: "Young Sheldon",
   },
 ];
 const isValid = (state) => {
@@ -84,6 +128,34 @@ const useStore = create(
         const { shows } = get();
         set({
           shows: shows.filter((show) => show.id !== id),
+        });
+      },
+
+      resetShows: () => {
+        const { shows } = get();
+        const initShows = INITIAL_shows.map((s) => {
+          const currentShow = shows.find((show) => show.id === s.id);
+          return {
+            id: s.id,
+            season: currentShow?.season ? currentShow?.season : null,
+            episode: currentShow?.episode ? currentShow?.episode : null,
+            lastPlayedSeason: currentShow?.lastPlayedSeason
+              ? currentShow?.lastPlayedSeason
+              : null,
+            lastPlayedEpisode: currentShow?.lastPlayedEpisode
+              ? currentShow?.lastPlayedEpisode
+              : null,
+            seasonToView: currentShow?.seasonToView
+              ? currentShow?.seasonToView
+              : null,
+            episodeToView: currentShow?.episodeToView
+              ? currentShow?.episodeToView
+              : null,
+            progress: currentShow?.progress ? currentShow?.progress : 0,
+          };
+        });
+        set({
+          shows: initShows,
         });
       },
 

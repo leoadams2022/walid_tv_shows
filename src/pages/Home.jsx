@@ -296,8 +296,10 @@ export default function Home() {
 
   React.useEffect(() => {
     (async () => {
-      if (!showId || (season !== 0 && !season) || (episode !== 0 && !episode))
+      if (!showId) {
+        console.error("showId is not defined");
         return;
+      }
       const localData = await getAllEpisodesById(`${showId}_all_episodes`); // localStorage.getItem(`${showId}_all_episodes`);
       if (localData) {
         console.log("local_all_episodes: ", localData);
@@ -367,7 +369,7 @@ export default function Home() {
       });
       setData(all_episodes);
     })();
-  }, [episode, season, showId]);
+  }, [showId]);
 
   // if (!data) return <div>Loading Home...</div>;
 
@@ -389,19 +391,21 @@ export default function Home() {
             theme={tabsTheme}
           >
             <TabItem title="Shows" icon={SiMyshows}>
-              <Shows />
+              {activeTab === 0 ? <Shows /> : null}
             </TabItem>
             <TabItem title="Show Info" icon={MdViewComfy}>
-              <ShowInfo />
+              {activeTab === 1 ? <ShowInfo /> : null}
             </TabItem>
             <TabItem title="Seasons" icon={FaLayerGroup}>
-              <Seasons />
+              {activeTab === 2 ? <Seasons /> : null}
             </TabItem>
             <TabItem title="Playlist" icon={RiPlayList2Fill}>
-              <Playlist
-                playNextEpisode={playNextEpisode}
-                playPreviousEpisode={playPreviousEpisode}
-              />
+              {activeTab === 3 ? (
+                <Playlist
+                  playNextEpisode={playNextEpisode}
+                  playPreviousEpisode={playPreviousEpisode}
+                />
+              ) : null}
             </TabItem>
           </Tabs>
         </div>

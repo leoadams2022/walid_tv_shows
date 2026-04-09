@@ -137,9 +137,14 @@ const EpisodeInfo = () => {
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center justify-between">
           <div className="w-62 lg:w-100 rounded-lg shadow-lg relative">
             <img
+              // src={"https://image.tmdb.org/t/p/w500"}
               src={posterUrl}
               alt={data.name}
               className="w-full rounded-lg"
+              onError={(e) => {
+                e.target.src = `https://placehold.co/400x224?text=no+image`;
+                e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+              }}
             />
             <button
               onClick={(e) => {
@@ -191,25 +196,35 @@ const EpisodeInfo = () => {
                     Playing
                   </Badge>
                 ) : null}
-                <Badge color="success">Episode {data.episode_number}</Badge>
-                <Badge color="success">{data.air_date}</Badge>
-                <Badge color="warning">
-                  <div className="flex items-center gap-1">
-                    {data.vote_average} <FaStar />
-                  </div>
-                </Badge>
-                <Badge color="warning">
-                  <div className="flex items-center gap-1">
-                    {data.runtime} <FaClock />
-                  </div>
-                </Badge>
+                {data.episode_number ? (
+                  <Badge color="success">Episode {data.episode_number}</Badge>
+                ) : null}
+                {data.air_date ? (
+                  <Badge color="success">{data.air_date}</Badge>
+                ) : null}
+                {data.vote_average ? (
+                  <Badge color="warning">
+                    <div className="flex items-center gap-1">
+                      {data.vote_average} <FaStar />
+                    </div>
+                  </Badge>
+                ) : null}
+                {data.runtime ? (
+                  <Badge color="warning">
+                    <div className="flex items-center gap-1">
+                      {data.runtime} <FaClock />
+                    </div>
+                  </Badge>
+                ) : null}
               </div>
             </div>
-            <p className="text-gray-600 text-dem">
-              <span className="font-semibold text mb-2">overview:</span>
-              <br />
-              {data.overview}
-            </p>
+            {data.overview ? (
+              <p className="text-gray-600 text-dem">
+                <span className="font-semibold text mb-2">overview:</span>
+                <br />
+                {data.overview}
+              </p>
+            ) : null}
           </div>
         </div>
       </Card>
@@ -227,9 +242,14 @@ const EpisodeInfo = () => {
                     className="relative rounded-lg flex flex-col items-center justify-center"
                   >
                     <img
+                      // src={"https://image.tmdb.org/t/p/w500"}
                       src={`https://image.tmdb.org/t/p/w500${person.profile_path}`}
                       alt={person.name}
                       className="w-46 h-56 rounded-full object-cover object-top shadow-sm"
+                      onError={(e) => {
+                        e.target.src = `https://placehold.co/500?text=no+image`;
+                        e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                      }}
                     />
                     {/* <div className="w-full h-full absolute inset-0 bg-linear-to-t from-gray-50 via-gray-50/50 dark:from-gray-800 to-transparent"></div> */}
                     <div className="p-3 text-center">
@@ -256,9 +276,14 @@ const EpisodeInfo = () => {
                     className="relative rounded-lg flex flex-col items-center justify-center"
                   >
                     <img
+                      // src={"https://image.tmdb.org/t/p/w500"}
                       src={`https://image.tmdb.org/t/p/w500${person.profile_path}`}
                       alt={person.name}
                       className="w-46 h-56 rounded-full object-cover object-top shadow-sm"
+                      onError={(e) => {
+                        e.target.src = `https://placehold.co/500?text=no+image`;
+                        e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                      }}
                     />
                     {/* <div className="w-full h-full absolute inset-0 bg-linear-to-t from-gray-50 via-gray-50/50 dark:from-gray-800 to-transparent"></div> */}
                     <div className="p-3 text-center">

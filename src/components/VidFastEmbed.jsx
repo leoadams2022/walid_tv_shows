@@ -149,6 +149,10 @@ const VidFastEmbed = () => {
   // Use useMemo so the URL string ONLY changes when the episode/show changes.
   // This prevents the iframe from thinking it has a new 'src' when the parent re-renders.
   const finalUrl = React.useMemo(() => {
+    if (!id || (s !== 0 && !s) || (e !== 0 && !e)) {
+      console.error("VidFastEmbed: No id, s, or e: ", { id, s, e });
+      return;
+    }
     const baseUrl = "https://vidfast.pro";
     const embedPath = `/tv/${id}/${s}/${e}`;
     const params = new URLSearchParams({
@@ -167,7 +171,13 @@ const VidFastEmbed = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, s, e]); // IMPORTANT: Do NOT put isFullScreen here.
 
-  if (isPlaying === false) {
+  if (
+    isPlaying === false ||
+    !finalUrl ||
+    !id ||
+    (s !== 0 && !s) ||
+    (e !== 0 && !e)
+  ) {
     return (
       <div className="w-full h-full flex justify-center items-center">
         <p className="text-2xl font-bold text-center text-gray-500">

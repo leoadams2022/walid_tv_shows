@@ -137,9 +137,14 @@ const SeasonInfo = () => {
       <Card>
         <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center justify-between">
           <img
+            // src={"https://image.tmdb.org/t/p/w500"}
             src={posterUrl}
             alt={data.name}
             className="min-w-52 h-100 rounded-lg shadow-lg"
+            onError={(e) => {
+              e.target.src = `https://placehold.co/280x400?text=no+image`;
+              e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+            }}
           />
           <div className="flex-1 flex flex-col gap-4 md:gap-8 ">
             <div className="flex flex-col md:flex-row gap-4 md:gap-8 md:items-center md:justify-between">
@@ -172,7 +177,7 @@ const SeasonInfo = () => {
               <div div className="flex gap-2">
                 {/* air_date */}
                 <Badge color="info">{data.air_date}</Badge>
-                <Badge color="info">{data.episode_count} Episodes</Badge>
+                <Badge color="info">{data.episodes.length} Episodes</Badge>
                 <Badge color="warning">
                   <div className="flex items-center gap-1">
                     {data.vote_average} <FaStar />
@@ -207,7 +212,7 @@ const SeasonInfo = () => {
                       alt={ep.name}
                       className="w-full rounded-lg"
                       onError={(e) => {
-                        e.target.src = `https://placehold.co/500?text=no+image`;
+                        e.target.src = `https://placehold.co/500x300?text=no+image`;
                         e.target.onerror = null; // Prevent infinite loop if placeholder also fails
                       }}
                     />
@@ -268,9 +273,14 @@ const SeasonInfo = () => {
                     className="relative text rounded-lg flex flex-col items-center justify-center"
                   >
                     <img
+                      // src={"https://image.tmdb.org/t/p/w500"}
                       src={`https://image.tmdb.org/t/p/w500${person.profile_path}`}
                       alt={person.name}
                       className="w-46 h-56 rounded-full object-cover object-top shadow-sm"
+                      onError={(e) => {
+                        e.target.src = `https://placehold.co/500?text=no+image`;
+                        e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                      }}
                     />
                     <div className="p-3 text-center">
                       <p className="font-bold">{person.original_name}</p>
@@ -295,9 +305,14 @@ const SeasonInfo = () => {
                     className="relative rounded-lg flex flex-col items-center justify-center"
                   >
                     <img
+                      // src={"https://image.tmdb.org/t/p/w500"}
                       src={`https://image.tmdb.org/t/p/w500${person.profile_path}`}
                       alt={person.name}
                       className="w-46 h-56 rounded-full object-cover object-top shadow-sm"
+                      onError={(e) => {
+                        e.target.src = `https://placehold.co/500?text=no+image`;
+                        e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                      }}
                     />
                     {/* <div className="w-full h-full absolute inset-0 bg-linear-to-t from-gray-50 via-gray-50/50 dark:from-gray-800 to-transparent"></div> */}
                     <div className="p-3 text-center">
@@ -323,9 +338,14 @@ const SeasonInfo = () => {
                     className="relative p-2"
                   >
                     <img
+                      // src={"https://image.tmdb.org/t/p/w500"}
                       src={`https://image.tmdb.org/t/p/w500${network.logo_path}`}
                       alt={network.name}
                       className="w-56  object-cover object-top"
+                      onError={(e) => {
+                        e.target.src = `https://placehold.co/224x60?text=no+image`;
+                        e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                      }}
                     />
                     {/* <div className="w-full h-full absolute inset-0 bg-linear-to-t from-gray-50 via-gray-50/50 dark:from-gray-800 to-transparent"></div> */}
                     {/* <div className="p-3 ">{network.name}</div> */}
@@ -350,9 +370,14 @@ const SeasonInfo = () => {
                       className="rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition"
                     >
                       <img
+                        // src={"https://image.tmdb.org/t/p/w500"}
                         src={`https://image.tmdb.org/t/p/w500${image.file_path}`}
                         alt={`Backdrop ${index + 1}`}
                         className="w-full h-auto"
+                        onError={(e) => {
+                          e.target.src = `https://placehold.co/280x400?text=no+image`;
+                          e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                        }}
                       />
                     </div>
                   ))}

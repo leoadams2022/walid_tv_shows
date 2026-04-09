@@ -100,6 +100,10 @@ const Seasons = () => {
                 src={`https://image.tmdb.org/t/p/w500${s.poster_path}`}
                 alt={s.name}
                 className="w-full h-auto rounded-t-lg"
+                onError={(e) => {
+                  e.target.src = `https://placehold.co/500?text=no+image`;
+                  e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                }}
               />
               <div className="w-full h-12 rounded-b-lg bg-pop text-pop p-2">
                 <h3 className="text-lg font-semibold line-clamp-1">{s.name}</h3>

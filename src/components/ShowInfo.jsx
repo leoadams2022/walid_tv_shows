@@ -93,7 +93,16 @@ const ShowInfo = () => {
           <div className="flex flex-col md:flex-row md:justify-center md:items-center gap-8 items-start">
             {/* Poster */}
             <div className="hidden md:block w-64 rounded-lg overflow-hidden shadow-2xl shrink-0">
-              <img src={posterUrl} alt={data.name} className="w-full h-auto" />
+              <img
+                // src={"https://image.tmdb.org/t/p/w500"}
+                src={posterUrl}
+                alt={data.name}
+                className="w-full h-auto"
+                onError={(e) => {
+                  e.target.src = `https://placehold.co/256x384?text=no+image`;
+                  e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                }}
+              />
             </div>
 
             {/* Title and Info */}
@@ -223,6 +232,10 @@ const ShowInfo = () => {
                           alt={actor.name}
                           rounded
                           size="md"
+                          onError={(e) => {
+                            e.target.src = `https://placehold.co/500?text=no+image`;
+                            e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                          }}
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
@@ -261,6 +274,10 @@ const ShowInfo = () => {
                             alt={member.name}
                             rounded
                             size="sm"
+                            onError={(e) => {
+                              e.target.src = `https://placehold.co/500?text=no+image`;
+                              e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                            }}
                           />
                         )}
                       </div>
@@ -288,6 +305,10 @@ const ShowInfo = () => {
                                 src={`https://img.youtube.com/vi/${video.key}/mqdefault.jpg`}
                                 alt={video.name}
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.src = `https://placehold.co/400x224?text=no+image`;
+                                  e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                                }}
                               />
                               <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                 <FaPlay className="w-12 h-12 text-white" />
@@ -316,9 +337,14 @@ const ShowInfo = () => {
                               className="rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition"
                             >
                               <img
+                                // src="https:"
                                 src={getImageUrl(image.file_path, "w500")}
                                 alt={`Backdrop ${index + 1}`}
                                 className="w-full h-auto"
+                                onError={(e) => {
+                                  e.target.src = `https://placehold.co/400x224?text=no+image`;
+                                  e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                                }}
                               />
                             </div>
                           ))}
@@ -344,6 +370,10 @@ const ShowInfo = () => {
                       alt={creator.name}
                       rounded
                       size="md"
+                      onError={(e) => {
+                        e.target.src = `https://placehold.co/500?text=no+image`;
+                        e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                      }}
                     />
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">

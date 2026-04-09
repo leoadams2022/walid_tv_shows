@@ -5,6 +5,8 @@ import { getTVDetails } from "../tmdb/tv";
 import { Badge, TextInput } from "flowbite-react";
 import { FaStar } from "react-icons/fa";
 import { MdOutlineAddToQueue } from "react-icons/md";
+import { MdOutlineResetTv } from "react-icons/md";
+
 import {
   Button,
   Modal,
@@ -17,6 +19,7 @@ import { addShow, getShowById } from "../database/db";
 export default function Shows() {
   const [openModal, setOpenModal] = React.useState(false);
   const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+  const [openResetModal, setOpenResetModal] = React.useState(false);
   const [showIdToDelete, setShowIdToDelete] = React.useState(null);
 
   const {
@@ -26,6 +29,7 @@ export default function Shows() {
     addShowById,
     removeShowById,
     isFullScreen,
+    resetShows,
   } = useStore(
     useShallow((s) => ({
       shows: s.shows,
@@ -34,6 +38,7 @@ export default function Shows() {
       addShowById: s.addShowById,
       removeShowById: s.removeShowById,
       isFullScreen: s.isFullScreen,
+      resetShows: s.resetShows,
     })),
   );
   const [data, setData] = React.useState(null);
@@ -126,6 +131,10 @@ export default function Shows() {
               src={`https://image.tmdb.org/t/p/w500${s.backdrop_path}`}
               alt={s.name}
               className="w-full h-auto rounded-t-lg"
+              onError={(e) => {
+                e.target.src = `https://placehold.co/500?text=no+image`;
+                e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+              }}
             />
             <div className="w-full h-12 rounded-b-lg bg-pop text-pop p-2">
               <h3 className="text-lg font-semibold line-clamp-1">{s.name}</h3>
@@ -179,6 +188,13 @@ export default function Shows() {
       >
         <MdOutlineAddToQueue />
       </button>
+      {/* reset shows button */}
+      <button
+        className={`${isFullScreen ? "hidden" : "flex"} fixed bottom-4 right-4 w-12 h-12 rounded-full bg-pop text-pop p-2  items-center justify-center text-2xl hover:scale-110 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl hover:ring-2 hover:ring-sky-500 cursor-pointer`}
+        onClick={() => setOpenResetModal(true)}
+      >
+        <MdOutlineResetTv />
+      </button>
       {/* new show modal  */}
       <Modal
         dismissible
@@ -206,6 +222,56 @@ export default function Shows() {
           <Button onClick={onAddNewShowModalClose}>Cancel</Button>
         </ModalFooter>
       </Modal>
+      {/* reset show modal  */}
+      <Modal
+        dismissible
+        show={openResetModal}
+        onClose={() => setOpenResetModal(false)}
+      >
+        <ModalHeader>Reset Shows</ModalHeader>
+        <ModalBody>
+          <div className="space-y-6 text ">
+            <p>Are you sure you want to reset all shows?</p>
+            <div className="flex items-center justify-between">
+              <div className="overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2 sm:gap-3 md:gap-4 min-w-max px-1">
+                  {data.map((s) => (
+                    <div
+                      key={s.id}
+                      className="flex flex-col items-center justify-center"
+                    >
+                      <img
+                        src={`https://image.tmdb.org/t/p/w500${s.backdrop_path}`}
+                        alt={s.name}
+                        className="h-12 md:h-22 lg:h-32 rounded-lg"
+                        onError={(e) => {
+                          e.target.src = `https://placehold.co/500?text=no+image`;
+                          e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                        }}
+                      />
+                      <p className="mt-2 text-sm md:text-base lg:text-xl font-bold">
+                        {s.name}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            color="red"
+            onClick={() => {
+              resetShows();
+              setOpenResetModal(false);
+            }}
+          >
+            Reset
+          </Button>
+          <Button onClick={() => setOpenResetModal(false)}>Cancel</Button>
+        </ModalFooter>
+      </Modal>
       {/* delete show modal  */}
       <Modal
         dismissible
@@ -216,7 +282,20 @@ export default function Shows() {
         <ModalBody>
           <div className="space-y-6 text ">
             <p>Are you sure you want to delete this show?</p>
-            <p>{data.find((s) => s.id === showIdToDelete)?.name}</p>
+            <div className="flex flex-col items-center justify-center">
+              <img
+                src={`https://image.tmdb.org/t/p/w500${data.find((s) => s.id === showIdToDelete)?.backdrop_path}`}
+                alt={data.find((s) => s.id === showIdToDelete)?.name}
+                className="h-12 md:h-22 lg:h-32 rounded-lg"
+                onError={(e) => {
+                  e.target.src = `https://placehold.co/500?text=no+image`;
+                  e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                }}
+              />
+              <p className="mt-2 text-sm md:text-base lg:text-xl font-bold">
+                {data.find((s) => s.id === showIdToDelete)?.name}
+              </p>
+            </div>
           </div>
         </ModalBody>
         <ModalFooter>
