@@ -12,6 +12,7 @@ import { getTVDetails } from "../tmdb/tv";
 
 import SeasonInfo from "./SeasonInfo";
 import EpisodeInfo from "./EpisodeInfo";
+import { addShow, getShowById } from "../database/db";
 
 const Seasons = () => {
   const [data, setData] = React.useState(null);
@@ -36,16 +37,21 @@ const Seasons = () => {
   // const data = HIMYM_SHOW_DETAILS.seasons;
   React.useEffect(() => {
     (async () => {
-      const localData = localStorage.getItem(`${showId}_show_info`);
+      const localData = await getShowById(`${showId}_show_info`); // localStorage.getItem(`${showId}_show_info`);
       if (localData) {
-        // console.log("show_info: ", JSON.parse(localData));
-        setData(JSON.parse(localData));
+        console.log("localData seasons: ", localData);
+        // setData(JSON.parse(localData));
+        setData(localData.data);
         return;
       }
       const d = await getTVDetails(showId, {
         append_to_response: "images,credits",
       });
-      localStorage.setItem(`${showId}_show_info`, JSON.stringify(d));
+      // localStorage.setItem(`${showId}_show_info`, JSON.stringify(d));
+      await addShow({
+        id: `${showId}_show_info`,
+        data: d,
+      });
       setData(d);
     })();
   }, [showId]);

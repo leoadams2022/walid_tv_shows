@@ -37,6 +37,7 @@ const VidFastEmbed = () => {
   React.useEffect(() => {
     const handleMessage = (event) => {
       // Security check: Ensure message is from a valid VidFast origin
+      // to add https://vidlink.pro/
       const validOrigins = [
         "https://vidfast.pro",
         "https://vidfast.to",

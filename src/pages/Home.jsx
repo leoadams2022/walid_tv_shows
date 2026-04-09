@@ -25,6 +25,12 @@ import Playlist from "../components/Playlist";
 import VidFastEmbed from "../components/VidFastEmbed";
 import { useSwipeable } from "react-swipeable";
 import Shows from "../components/Shows";
+import {
+  addToAllEpisodes,
+  getAllEpisodesById,
+  getSeasonById,
+  getShowById,
+} from "../database/db";
 
 const tabsTheme = {
   base: "flex flex-col gap-2 h-full",
@@ -290,33 +296,55 @@ export default function Home() {
 
   React.useEffect(() => {
     (async () => {
-      const localData = localStorage.getItem(`${showId}_all_episodes`);
+      if (!showId || (season !== 0 && !season) || (episode !== 0 && !episode))
+        return;
+      const localData = await getAllEpisodesById(`${showId}_all_episodes`); // localStorage.getItem(`${showId}_all_episodes`);
       if (localData) {
-        // console.log("episode_info_ local: ", JSON.parse(localData));
-        const ld = JSON.parse(localData);
+        console.log("local_all_episodes: ", localData);
+        const ld = localData.data; // JSON.parse(localData);
         setData(ld);
         return;
       }
-      const show_info_seasons =
-        JSON.parse(localStorage.getItem(`${showId}_show_info`)).seasons ||
-        (await getTVDetails(showId).seasons);
+      // const show_info_seasons =
+      //   JSON.parse(localStorage.getItem(`${showId}_show_info`)).seasons ||
+      //   (await getTVDetails(showId).seasons);
+      let local_show_info_seasons = await getShowById(`${showId}_show_info`);
+      local_show_info_seasons = local_show_info_seasons
+        ? local_show_info_seasons?.data
+        : null;
+      local_show_info_seasons = local_show_info_seasons
+        ? local_show_info_seasons?.seasons
+        : null;
+      console.log("local_show_info_seasons: ", local_show_info_seasons);
+
+      const show_info_seasons = local_show_info_seasons
+        ? local_show_info_seasons
+        : await getTVDetails(showId)?.seasons;
+      console.log("show_info_seasons: ", show_info_seasons);
 
       const seasonPromises = show_info_seasons.map(async (s) => {
         let season_episodes;
-        const local_season = localStorage.getItem(
+        let local_season = await getSeasonById(
           `${showId}_season_info_${s.season_number}`,
         );
+        local_season = local_season ? local_season?.data : null;
+        console.log("local_season: ", local_season);
+        //  localStorage.getItem(
+        //   `${showId}_season_info_${s.season_number}`,
+        // );
 
         if (local_season) {
-          const local_season_episodes = JSON.parse(local_season).episodes;
+          // const local_season_episodes = JSON.parse(local_season).episodes;
+          const local_season_episodes = local_season?.episodes;
           season_episodes = local_season_episodes;
-          // console.log("local_season_episodes: ", local_season_episodes);
+          console.log("local_season_episodes: ", local_season_episodes);
         } else {
           const fetched_season_episodes = await getTVSeasonDetails(
             showId,
             s.season_number,
           );
           season_episodes = fetched_season_episodes.episodes;
+          console.log("fetched_season_episodes: ", fetched_season_episodes);
           // console.log("fetched_season_episodes: ", fetched_season_episodes);
         }
 
@@ -328,16 +356,20 @@ export default function Home() {
 
       const allSeasonEpisodes = await Promise.all(seasonPromises);
       const all_episodes = allSeasonEpisodes.flat();
-      localStorage.setItem(
-        `${showId}_all_episodes`,
-        JSON.stringify(all_episodes),
-      );
+      // localStorage.setItem(
+      //   `${showId}_all_episodes`,
+      //   JSON.stringify(all_episodes),
+      // );
       // console.log("all_epi?sodes: ", all_episodes);
+      await addToAllEpisodes({
+        id: `${showId}_all_episodes`,
+        data: all_episodes,
+      });
       setData(all_episodes);
     })();
-  }, [showId]);
+  }, [episode, season, showId]);
 
-  if (!data) return <div>Loading Home...</div>;
+  // if (!data) return <div>Loading Home...</div>;
 
   return (
     <div ref={playerContainerRef} className="w-screen h-svh bg text relative ">

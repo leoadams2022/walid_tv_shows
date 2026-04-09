@@ -12,6 +12,7 @@ import { SiPaloaltonetworks } from "react-icons/si";
 import { GrFormNextLink } from "react-icons/gr";
 
 import { getTVDetails, getTVSeasonDetails } from "../tmdb/tv";
+import { addSeason, getSeasonById } from "../database/db";
 
 const SeasonInfo = () => {
   const [data, setData] = React.useState(null);
@@ -48,23 +49,32 @@ const SeasonInfo = () => {
 
   React.useEffect(() => {
     (async () => {
-      const localData = localStorage.getItem(
+      const localData = await getSeasonById(
         `${showId}_season_info_${seasonToView}`,
       );
+      // localStorage.getItem(
+      //   `${showId}_season_info_${seasonToView}`,
+      // );
       if (localData) {
-        console.log("season_info local: ", JSON.parse(localData));
-        const ld = JSON.parse(localData);
-        setData(ld);
+        // console.log("season_info local: ", JSON.parse(localData));
+        // const ld = JSON.parse(localData);
+        // setData(ld);
+        console.log("season_info local: ", localData);
+        setData(localData.data);
         return;
       }
       const d = await getTVSeasonDetails(showId, seasonToView, {
         append_to_response: "images,credits",
       });
-      console.log("season_info: ", d);
-      localStorage.setItem(
-        `${showId}_season_info_${seasonToView}`,
-        JSON.stringify(d),
-      );
+      await addSeason({
+        id: `${showId}_season_info_${seasonToView}`,
+        data: d,
+      });
+      // console.log("season_info: ", d);
+      // localStorage.setItem(
+      //   `${showId}_season_info_${seasonToView}`,
+      //   JSON.stringify(d),
+      // );
       setData(d);
     })();
     (async () => {

@@ -10,6 +10,7 @@ import { FaStar, FaVideo, FaClock } from "react-icons/fa";
 import { GrFormNextLink } from "react-icons/gr";
 
 import { getTVEpisodeDetails, getTVSeasonDetails } from "../tmdb/tv";
+import { addEpisode, getEpisodeById } from "../database/db";
 
 const EpisodeInfo = () => {
   const [data, setData] = React.useState(null);
@@ -43,27 +44,33 @@ const EpisodeInfo = () => {
 
   React.useEffect(() => {
     (async () => {
-      const localData = localStorage.getItem(
+      const localData = await getEpisodeById(
         `${showId}_episode_info_${seasonToView}_${episodeToView}`,
       );
+      //  localStorage.getItem(
+      //   `${showId}_episode_info_${seasonToView}_${episodeToView}`,
+      // );
       if (localData) {
         // console.log("episode_info_ local: ", JSON.parse(localData));
-        const ld = JSON.parse(localData);
-        setData(ld);
-        // setData(ld.seasons.find((s) => s.season_number === seasonToView));
-
+        // const ld = JSON.parse(localData);
+        // setData(ld);
+        console.log("episode_info_ local: ", localData);
+        setData(localData.data);
         return;
       }
       const d = await getTVEpisodeDetails(showId, seasonToView, episodeToView, {
         append_to_response: "images,credits",
       });
-      console.log("episode_info_: ", d);
-      localStorage.setItem(
-        `${showId}_episode_info_${seasonToView}_${episodeToView}`,
-        JSON.stringify(d),
-      );
+
+      await addEpisode({
+        id: `${showId}_episode_info_${seasonToView}_${episodeToView}`,
+        data: d,
+      });
+      // localStorage.setItem(
+      //   `${showId}_episode_info_${seasonToView}_${episodeToView}`,
+      //   JSON.stringify(d),
+      // );
       setData(d);
-      // setData(d.seasons.find((s) => s.season_number === seasonToView));
     })();
     (async () => {
       const localData = localStorage.getItem(

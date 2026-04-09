@@ -12,9 +12,12 @@ import {
   ModalFooter,
   ModalHeader,
 } from "flowbite-react";
+import { addShow, getShowById } from "../database/db";
 
 export default function Shows() {
   const [openModal, setOpenModal] = React.useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
+  const [showIdToDelete, setShowIdToDelete] = React.useState(null);
 
   const { shows, showId, setShowId, addShowById, removeShowById } = useStore(
     useShallow((s) => ({
@@ -32,35 +35,48 @@ export default function Shows() {
     const newShowId = Number(showIdInput);
     if (!newShowId) {
       console.error("No id provided");
+      alert("No id provided");
       return;
     }
 
     if (shows.find((show) => show.id === newShowId)) {
       console.error("Show already exists");
+      alert("Show already exists");
       return;
     }
     addShowById(newShowId);
     setOpenModal(false);
+    setShowIdInput("");
+  };
+
+  const deleteShowById = () => {
+    removeShowById(showId);
+    setOpenDeleteModal(false);
   };
 
   React.useEffect(() => {
     (async () => {
       const showsPromises = shows.map(async (s) => {
         let show_info;
-        const local_show = localStorage.getItem(`${s.id}_show_info`);
+        const local_show = await getShowById(`${s.id}_show_info`); // localStorage.getItem(`${s.id}_show_info`);
 
         if (local_show) {
-          const local_show_info = JSON.parse(local_show);
+          const local_show_info = local_show.data; // JSON.parse(local_show);
           show_info = local_show_info;
         } else {
           try {
             const fetched_show_info = await getTVDetails(s.id, {
               append_to_response: "images,credits",
             });
-            localStorage.setItem(
-              `${s.id}_show_info`,
-              JSON.stringify(fetched_show_info),
-            );
+            // localStorage.setItem(
+            //   `${s.id}_show_info`,
+            //   JSON.stringify(fetched_show_info),
+            // );
+
+            await addShow({
+              id: `${s.id}_show_info`,
+              data: fetched_show_info,
+            });
             show_info = fetched_show_info;
           } catch (e) {
             console.error(
@@ -76,7 +92,7 @@ export default function Shows() {
       });
 
       const show_info = (await Promise.all(showsPromises)).filter((s) => s);
-      console.log("show_info: ", show_info);
+      // console.log("show_info: ", show_info);
       setData(show_info);
     })();
   }, [shows]);
@@ -119,7 +135,9 @@ export default function Shows() {
               <Badge
                 onClick={(e) => {
                   e.stopPropagation();
-                  removeShowById(s.id);
+                  setShowIdToDelete(s.id);
+                  setOpenDeleteModal(true);
+                  // removeShowById(s.id);
                 }}
                 color="failure"
                 size="xs"
@@ -137,7 +155,7 @@ export default function Shows() {
         <MdOutlineAddToQueue />
       </button>
       <Modal show={openModal} onClose={() => setOpenModal(false)}>
-        <ModalHeader>Add Show By Id</ModalHeader>
+        <ModalHeader>Add Show By TMDB ID</ModalHeader>
         <ModalBody>
           <div className="space-y-6">
             <TextInput
@@ -147,7 +165,7 @@ export default function Shows() {
                 setShowIdInput(val);
               }}
               value={showIdInput}
-              placeholder="Show Id"
+              placeholder="TV Show TMDB ID"
             />
           </div>
         </ModalBody>
@@ -156,6 +174,21 @@ export default function Shows() {
             Add
           </Button>
           <Button onClick={() => setOpenModal(false)}>Cancel</Button>
+        </ModalFooter>
+      </Modal>
+      <Modal show={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
+        <ModalHeader>Delete Show</ModalHeader>
+        <ModalBody>
+          <div className="space-y-6 text ">
+            <p>Are you sure you want to delete this show?</p>
+            <p>{data.find((s) => s.id === showIdToDelete)?.name}</p>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="red" onClick={() => deleteShowById()}>
+            Delete
+          </Button>
+          <Button onClick={() => setOpenDeleteModal(false)}>Cancel</Button>
         </ModalFooter>
       </Modal>
     </div>

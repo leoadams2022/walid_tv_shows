@@ -25,6 +25,7 @@ import {
 } from "react-icons/fa";
 
 import { getTVDetails } from "../tmdb/tv";
+import { addShow, getShowById } from "../database/db";
 
 const ShowInfo = () => {
   const [data, setData] = React.useState(null);
@@ -52,16 +53,21 @@ const ShowInfo = () => {
 
   React.useEffect(() => {
     (async () => {
-      const localData = localStorage.getItem(`${showId}_show_info`);
+      const localData = await getShowById(`${showId}_show_info`); // localStorage.getItem(`${showId}_show_info`);
       if (localData) {
         // console.log("show_info: ", JSON.parse(localData));
-        setData(JSON.parse(localData));
+        // setData(JSON.parse(localData));
+        setData(localData.data);
         return;
       }
       const d = await getTVDetails(showId, {
         append_to_response: "images,credits",
       });
-      localStorage.setItem(`${showId}_show_info`, JSON.stringify(d));
+      // localStorage.setItem(`${showId}_show_info`, JSON.stringify(d));
+      await addShow({
+        id: `${showId}_show_info`,
+        data: d,
+      });
       setData(d);
     })();
   }, [showId]);
