@@ -19,13 +19,21 @@ export default function Shows() {
   const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
   const [showIdToDelete, setShowIdToDelete] = React.useState(null);
 
-  const { shows, showId, setShowId, addShowById, removeShowById } = useStore(
+  const {
+    shows,
+    showId,
+    setShowId,
+    addShowById,
+    removeShowById,
+    isFullScreen,
+  } = useStore(
     useShallow((s) => ({
       shows: s.shows,
       showId: s.showId,
       setShowId: s.setShowId,
       addShowById: s.addShowById,
       removeShowById: s.removeShowById,
+      isFullScreen: s.isFullScreen,
     })),
   );
   const [data, setData] = React.useState(null);
@@ -52,6 +60,11 @@ export default function Shows() {
   const deleteShowById = () => {
     removeShowById(showId);
     setOpenDeleteModal(false);
+  };
+
+  const onAddNewShowModalClose = () => {
+    setOpenModal(false);
+    setShowIdInput("");
   };
 
   React.useEffect(() => {
@@ -101,7 +114,7 @@ export default function Shows() {
     <div className="container mx-auto p-4 relative">
       {/* Shows Grid  */}
       <div
-        className={`flex flex-wrap gap-6 md:gap-8 place-content-center place-items-center`}
+        className={`flex flex-wrap gap-6 md:gap-8 pb-8 place-content-center place-items-center`}
       >
         {data.map((s) => (
           <div
@@ -128,33 +141,50 @@ export default function Shows() {
                 </div>
               </Badge>
             </div>
-            <div className=" absolute bottom-12 left-0 w-full flex justify-between p-1 gap-1">
+            <div className=" absolute bottom-12 left-0 w-full flex justify-between items-end p-1 gap-1">
               <Badge color="success" size="xs">
                 {s.first_air_date}
               </Badge>
-              <Badge
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowIdToDelete(s.id);
-                  setOpenDeleteModal(true);
-                  // removeShowById(s.id);
-                }}
-                color="failure"
-                size="xs"
-              >
-                Delete
-              </Badge>
+              <div className="flex flex-col gap-1">
+                <Badge color="success" size="xs">
+                  {s.id}
+                </Badge>
+                <Badge
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowIdToDelete(s.id);
+                    setOpenDeleteModal(true);
+                    // removeShowById(s.id);
+                  }}
+                  color="failure"
+                  size="xs"
+                  className={`cursor-pointer ${isFullScreen ? "hidden" : ""}`}
+                >
+                  Delete
+                </Badge>
+              </div>
             </div>
           </div>
         ))}
       </div>
+      <p
+        className={`${isFullScreen ? "" : "hidden"} fixed bottom-0 h-8 text-xs text-dem text-center w-full`}
+      >
+        To add a new show or delete an existing show, exit fullscreen.
+      </p>
+      {/* add new show button */}
       <button
-        className={`fixed bottom-4 left-4 w-12 h-12 rounded-full bg-pop text-pop p-2 flex items-center justify-center text-2xl hover:scale-110 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl hover:ring-2 hover:ring-sky-500 cursor-pointer`}
+        className={`${isFullScreen ? "hidden" : "flex"} fixed bottom-4 left-4 w-12 h-12 rounded-full bg-pop text-pop p-2  items-center justify-center text-2xl hover:scale-110 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl hover:ring-2 hover:ring-sky-500 cursor-pointer`}
         onClick={() => setOpenModal(true)}
       >
         <MdOutlineAddToQueue />
       </button>
-      <Modal show={openModal} onClose={() => setOpenModal(false)}>
+      {/* new show modal  */}
+      <Modal
+        dismissible
+        show={openModal}
+        onClose={() => onAddNewShowModalClose()}
+      >
         <ModalHeader>Add Show By TMDB ID</ModalHeader>
         <ModalBody>
           <div className="space-y-6">
@@ -173,10 +203,15 @@ export default function Shows() {
           <Button onClick={() => addNewShowById()} disabled={!showIdInput}>
             Add
           </Button>
-          <Button onClick={() => setOpenModal(false)}>Cancel</Button>
+          <Button onClick={onAddNewShowModalClose}>Cancel</Button>
         </ModalFooter>
       </Modal>
-      <Modal show={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
+      {/* delete show modal  */}
+      <Modal
+        dismissible
+        show={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+      >
         <ModalHeader>Delete Show</ModalHeader>
         <ModalBody>
           <div className="space-y-6 text ">
