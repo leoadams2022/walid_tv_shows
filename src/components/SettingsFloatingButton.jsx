@@ -10,15 +10,41 @@ import { IoSettings } from "react-icons/io5";
 import ThemeToggle from "./ThemeToggle";
 
 const SettingsFloatingButton = () => {
-  const { isAutoPlay, setIsAutoPlay, isAutoPlayNext, setIsAutoPlayNext } =
-    useStore(
-      useShallow((s) => ({
-        isAutoPlay: s.isAutoPlay,
-        setIsAutoPlay: s.setIsAutoPlay,
-        isAutoPlayNext: s.isAutoPlayNext,
-        setIsAutoPlayNext: s.setIsAutoPlayNext,
-      })),
-    );
+  const {
+    isAutoPlay,
+    setIsAutoPlay,
+    isAutoPlayNext,
+    setIsAutoPlayNext,
+    hideSpecials,
+    setHideSpecials,
+    season,
+    // episode,
+    setSeason,
+    setEpisode,
+    setProgress,
+    seasonToView,
+    // episodeToView,
+    setSeasonToView,
+    setEpisodeToView,
+  } = useStore(
+    useShallow((s) => ({
+      isAutoPlay: s.isAutoPlay,
+      setIsAutoPlay: s.setIsAutoPlay,
+      isAutoPlayNext: s.isAutoPlayNext,
+      setIsAutoPlayNext: s.setIsAutoPlayNext,
+      hideSpecials: s.hideSpecials,
+      setHideSpecials: s.setHideSpecials,
+      season: s.season,
+      // episode: s.episode,
+      setSeason: s.setSeason,
+      setEpisode: s.setEpisode,
+      setProgress: s.setProgress,
+      seasonToView: s.seasonToView,
+      // episodeToView: s.episodeToView,
+      setSeasonToView: s.setSeasonToView,
+      setEpisodeToView: s.setEpisodeToView,
+    })),
+  );
 
   const [showOptions, setShowOptions] = React.useState(false);
 
@@ -63,10 +89,6 @@ const SettingsFloatingButton = () => {
           className={` absolute bottom-11 sm:bottom-13 md:bottom-14 lg:bottom-16 right-2 bg-pop text-pop  bg-gray-800 p-2 rounded-md text-white z-50 space-y-2`}
           ref={optionsRef}
         >
-          {/* <div className="flex items-center ">
-            <ThemeToggleButton />
-            <p>Dark/Light Mode</p>
-          </div> */}
           <ThemeToggle />
           <ToggleSwitch
             checked={isAutoPlay}
@@ -78,6 +100,27 @@ const SettingsFloatingButton = () => {
             checked={isAutoPlayNext}
             label="Auto Play Next"
             onChange={setIsAutoPlayNext}
+            className="text-nowrap"
+          />
+          <ToggleSwitch
+            checked={hideSpecials}
+            label="Hide Specials"
+            onChange={(v) => {
+              setHideSpecials(v);
+              if (season === 0) {
+                setSeason(null);
+                setEpisode(null);
+                setProgress(0);
+              }
+              if (seasonToView == 0) {
+                // console.log(
+                //   "we have set seasonToView to null cuz it was 0",
+                //   seasonToView,
+                // );
+                setSeasonToView(null);
+                setEpisodeToView(null);
+              }
+            }}
             className="text-nowrap"
           />
         </div>

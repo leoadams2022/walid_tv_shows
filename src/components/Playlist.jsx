@@ -34,6 +34,7 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
     lastPlayedSeason,
     lastPlayedEpisode,
     showId,
+    hideSpecials,
   } = useStore(
     useShallow((s) => ({
       season: s.season,
@@ -48,6 +49,7 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
       lastPlayedSeason: s.lastPlayedSeason,
       lastPlayedEpisode: s.lastPlayedEpisode,
       showId: s.showId,
+      hideSpecials: s.hideSpecials,
     })),
   );
   // const getPlayerTime = useStore(useShallow((s) => s.getPlayerTime()));
@@ -93,6 +95,10 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
         lastPlayedSeason,
         lastPlayedEpisode,
       );
+      return;
+    }
+    if (hideSpecials && lastPlayedSeason === 0) {
+      alert("Lst played episode is a Specials and they are hidden");
       return;
     }
     setSeason(lastPlayedSeason);
@@ -191,55 +197,58 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
       {/* Episodes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="text-2xl font-semibold ">Episodes</div>
-        {data.map((ep) => (
-          <div
-            onClick={() => playEpisode(ep)}
-            key={ep.id}
-            id={`s${ep.season_number}e${ep.episode_number}`}
-            className={` p-3 sm:p-4 rounded-lg  bg-white shadow-md dark:bg-gray-800 cursor-pointer ${season === ep.season_number && episode === ep.episode_number ? "border-2 border-sky-500" : lastPlayedSeason === ep.season_number && lastPlayedEpisode === ep.episode_number ? "border-2 border-amber-500" : "border border-gray-200 dark:border-gray-700 "}`}
-          >
-            <div className="flex gap-2 items-center">
-              <div className="flex-1 flex flex-wrap flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-                <div className="flex-1 flex gap-2 items-center text-xs sm:text-sm md:text-base lg:text-lg line-clamp-1">
-                  <p className="font-bold bg-black text-white px-2 py-0.5 rounded-md">
-                    S{ep.season_number} E{ep.episode_number}
-                  </p>
-                  <p className="flex-1  line-clamp-1">{ep.name}</p>
-                </div>
-                <div className="flex flex-wrap gap-2 items-center">
-                  {season === ep.season_number &&
-                    episode === ep.episode_number && (
-                      <Badge color="info" size="xs">
-                        Playing
+        {data.map((ep) => {
+          if (hideSpecials && ep.season_number === 0) return null;
+          return (
+            <div
+              onClick={() => playEpisode(ep)}
+              key={ep.id}
+              id={`s${ep.season_number}e${ep.episode_number}`}
+              className={` p-3 sm:p-4 rounded-lg  bg-white shadow-md dark:bg-gray-800 cursor-pointer ${season === ep.season_number && episode === ep.episode_number ? "border-2 border-sky-500" : lastPlayedSeason === ep.season_number && lastPlayedEpisode === ep.episode_number ? "border-2 border-amber-500" : "border border-gray-200 dark:border-gray-700 "}`}
+            >
+              <div className="flex gap-2 items-center">
+                <div className="flex-1 flex flex-wrap flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+                  <div className="flex-1 flex gap-2 items-center text-xs sm:text-sm md:text-base lg:text-lg line-clamp-1">
+                    <p className="font-bold bg-black text-white px-2 py-0.5 rounded-md">
+                      S{ep.season_number} E{ep.episode_number}
+                    </p>
+                    <p className="flex-1  line-clamp-1">{ep.name}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {season === ep.season_number &&
+                      episode === ep.episode_number && (
+                        <Badge color="info" size="xs">
+                          Playing
+                        </Badge>
+                      )}
+                    {ep.air_date ? (
+                      <Badge color="success" size="xs">
+                        <div className=" ">{ep.air_date}</div>
                       </Badge>
-                    )}
-                  {ep.air_date ? (
-                    <Badge color="success" size="xs">
-                      <div className=" ">{ep.air_date}</div>
-                    </Badge>
-                  ) : null}
-                  {ep.vote_average ? (
-                    <Badge color="warning" size="xs">
+                    ) : null}
+                    {ep.vote_average ? (
+                      <Badge color="warning" size="xs">
+                        <div className="flex items-center gap-1">
+                          {ep.vote_average} <FaStar />
+                        </div>
+                      </Badge>
+                    ) : null}
+
+                    <Badge
+                      onClick={(e) => showEpisodeInfo(e, ep)}
+                      color="info"
+                      size="xs"
+                    >
                       <div className="flex items-center gap-1">
-                        {ep.vote_average} <FaStar />
+                        Info <FaInfo />
                       </div>
                     </Badge>
-                  ) : null}
-
-                  <Badge
-                    onClick={(e) => showEpisodeInfo(e, ep)}
-                    color="info"
-                    size="xs"
-                  >
-                    <div className="flex items-center gap-1">
-                      Info <FaInfo />
-                    </div>
-                  </Badge>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <FloatingControls

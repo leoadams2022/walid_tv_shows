@@ -95,6 +95,7 @@ export default function Home() {
     setFullScreen,
     remainingTime,
     showId,
+    hideSpecials,
   } = useStore(
     useShallow((s) => ({
       showSidebar: s.showSidebar,
@@ -110,6 +111,7 @@ export default function Home() {
       setFullScreen: s.setFullScreen,
       remainingTime: s.remainingTime,
       showId: s.showId,
+      hideSpecials: s.hideSpecials,
     })),
   );
   const getFormatRemainingTime = useStore(
@@ -170,6 +172,11 @@ export default function Home() {
         return highest;
       }, null);
 
+      if (hideSpecials && nextEpisode.season_number === 0) {
+        alert("Next episode is a Specials and they are hidden");
+        return;
+      }
+
       if (nextEpisode) {
         setProgress(0);
         setTimeout(() => {
@@ -195,6 +202,11 @@ export default function Home() {
         }
         return highest;
       }, null);
+
+      if (hideSpecials && previousEpisode.season_number === 0) {
+        alert("Previous episode is a Specials and they are hidden");
+        return;
+      }
 
       if (previousEpisode) {
         setProgress(0);

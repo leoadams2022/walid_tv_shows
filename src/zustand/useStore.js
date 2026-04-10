@@ -94,6 +94,7 @@ const useStore = create(
       isFullScreen: false,
       isAutoPlay: true,
       isAutoPlayNext: true,
+      hideSpecials: false, // setHideSpecials
 
       // Timer
       timer: null, // in minutes or null for off
@@ -276,6 +277,10 @@ const useStore = create(
 
       setIsAutoPlayNext: (isAutoPlayNext) => {
         set({ isAutoPlayNext });
+      },
+
+      setHideSpecials: (hideSpecials) => {
+        set({ hideSpecials });
       },
 
       setTimer: (timer) => set({ timer }),
