@@ -200,11 +200,11 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
           >
             <div className="flex gap-2 items-center">
               <div className="flex-1 flex flex-wrap flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-                <div className="flex gap-2 items-center text-xs sm:text-sm md:text-base lg:text-lg line-clamp-1">
+                <div className="flex-1 flex gap-2 items-center text-xs sm:text-sm md:text-base lg:text-lg line-clamp-1">
                   <p className="font-bold bg-black text-white px-2 py-0.5 rounded-md">
                     S{ep.season_number} E{ep.episode_number}
                   </p>
-                  <p>{ep.name}</p>
+                  <p className="flex-1  line-clamp-1">{ep.name}</p>
                 </div>
                 <div className="flex flex-wrap gap-2 items-center">
                   {season === ep.season_number &&
