@@ -360,7 +360,8 @@ export default function Shows() {
                   </div>
                 </div>
               </>
-            ) : data.length < initial_shows.length ? (
+            ) : null}
+            {data.length < initial_shows.length ? (
               <>
                 <p>the following shows will be readded to your library:</p>
                 <div className="flex items-center justify-between">
