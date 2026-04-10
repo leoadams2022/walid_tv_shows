@@ -31,6 +31,7 @@ import {
   getSeasonById,
   getShowById,
 } from "../database/db";
+import logo from "../assets/icon-512x512.png";
 
 const tabsTheme = {
   base: "flex flex-col gap-2 h-full",
@@ -390,7 +391,10 @@ export default function Home() {
             onActiveTabChange={(tab) => setActiveTab(tab)}
             theme={tabsTheme}
           >
-            <TabItem title="Shows" icon={SiMyshows}>
+            <TabItem
+              title="Shows"
+              icon={() => <img src={logo} className="w-6 h-6 mx-1" />}
+            >
               {activeTab === 0 ? <Shows /> : null}
             </TabItem>
             <TabItem title="Show Info" icon={MdViewComfy}>

@@ -179,7 +179,7 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
       });
       setData(all_episodes);
     })();
-  }, []);
+  }, [showId]);
 
   if (!data) return <div>Loading Play List...</div>;
 

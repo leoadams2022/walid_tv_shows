@@ -14,10 +14,10 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "robots.txt", "apple-touch-icon.png"],
       manifest: {
-        name: "Walid TV Shows",
-        short_name: "Walid TV Show",
+        name: "Lineup Your shows. In order.",
+        short_name: "Lineup",
         description:
-          "Walid TV is an App that allows you to stream your favorite TV Shows.",
+          "Your personal TV library that remembers every episode, every laugh, and exactly where you hit pause.",
         theme_color: "#ffffff",
         background_color: "#ffffff",
         display: "standalone",

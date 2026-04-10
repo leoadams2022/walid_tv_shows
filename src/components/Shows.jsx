@@ -21,6 +21,7 @@ export default function Shows() {
   const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
   const [openResetModal, setOpenResetModal] = React.useState(false);
   const [showIdToDelete, setShowIdToDelete] = React.useState(null);
+  const [addingNewShowError, setAddingNewShowError] = React.useState(null);
 
   const {
     shows,
@@ -44,7 +45,7 @@ export default function Shows() {
   const [data, setData] = React.useState(null);
   const [showIdInput, setShowIdInput] = React.useState(null);
 
-  const addNewShowById = () => {
+  const addNewShowById = async () => {
     const newShowId = Number(showIdInput);
     if (!newShowId) {
       console.error("No id provided");
@@ -57,9 +58,23 @@ export default function Shows() {
       alert("Show already exists");
       return;
     }
-    addShowById(newShowId);
-    setOpenModal(false);
-    setShowIdInput("");
+    setAddingNewShowError(null);
+    try {
+      await getTVDetails(newShowId);
+
+      addShowById(newShowId);
+      setOpenModal(false);
+      setShowIdInput("");
+    } catch (error) {
+      console.error("Error adding show:", error.status);
+      setAddingNewShowError(
+        "Was not able to fetch show info for show id: " + newShowId,
+      );
+    } finally {
+      setTimeout(() => {
+        setAddingNewShowError(null);
+      }, 5000);
+    }
   };
 
   const deleteShowById = () => {
@@ -195,7 +210,7 @@ export default function Shows() {
       >
         <MdOutlineResetTv />
       </button>
-      {/* new show modal  */}
+      {/* add new show modal  */}
       <Modal
         dismissible
         show={openModal}
@@ -213,6 +228,11 @@ export default function Shows() {
               value={showIdInput}
               placeholder="TV Show TMDB ID"
             />
+            <div>
+              {addingNewShowError && (
+                <p className="text-red-500">{addingNewShowError}</p>
+              )}
+            </div>
           </div>
         </ModalBody>
         <ModalFooter>
