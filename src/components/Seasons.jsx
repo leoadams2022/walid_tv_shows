@@ -57,7 +57,7 @@ const Seasons = () => {
       setData(d);
     })();
   }, [showId]);
-
+  if (!showId) return <div>No Show Selected</div>;
   if (!data) return <div>Loading Seasons...</div>;
 
   return (

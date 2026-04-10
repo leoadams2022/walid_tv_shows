@@ -66,6 +66,35 @@ export async function deleteShow(id) {
   }
 }
 
+// Get all shows whose ID starts with the given prefix
+export async function getShowInfoByIdPrefix(prefix) {
+  try {
+    const shows = await db.show_info.where("id").startsWith(prefix).toArray();
+    return shows;
+  } catch (error) {
+    console.error("Error getting show_info by ID prefix:", error);
+    return [];
+  }
+}
+
+// Delete all shows whose ID starts with the given prefix
+export async function deleteShowInfoByIdPrefix(prefix) {
+  if (!prefix || typeof prefix !== "string") {
+    console.warn(
+      "deleteShowInfoByIdPrefix called with invalid prefix:",
+      prefix,
+    );
+    return 0;
+  }
+  try {
+    const count = await db.show_info.where("id").startsWith(prefix).delete();
+    return count;
+  } catch (error) {
+    console.error("Error deleting show_info by ID prefix:", error);
+    return 0;
+  }
+}
+
 // ========== SEASON_INFO FUNCTIONS ==========
 
 // Add or update a season
@@ -134,6 +163,29 @@ export async function deleteSeason(id) {
   } catch (error) {
     console.error("Error deleting season:", error);
     return false;
+  }
+}
+
+export async function getSeasonsInfoByIdPrefix(prefix) {
+  try {
+    const seasons = await db.season_info
+      .where("id")
+      .startsWith(prefix)
+      .toArray();
+    return seasons;
+  } catch (error) {
+    console.error("Error getting season_info by ID prefix:", error);
+    return [];
+  }
+}
+
+export async function deleteSeasonsInfoByIdPrefix(prefix) {
+  try {
+    const count = await db.season_info.where("id").startsWith(prefix).delete();
+    return count;
+  } catch (error) {
+    console.error("Error deleting season_info by ID prefix:", error);
+    return 0;
   }
 }
 
@@ -236,6 +288,29 @@ export async function deleteEpisode(id) {
   }
 }
 
+export async function getEpisodeInfoByIdPrefix(prefix) {
+  try {
+    const episodes = await db.episode_info
+      .where("id")
+      .startsWith(prefix)
+      .toArray();
+    return episodes;
+  } catch (error) {
+    console.error("Error getting episode_info by ID prefix:", error);
+    return [];
+  }
+}
+
+export async function deleteEpisodeInfoByIdPrefix(prefix) {
+  try {
+    const count = await db.episode_info.where("id").startsWith(prefix).delete();
+    return count;
+  } catch (error) {
+    console.error("Error deleting episode_info by ID prefix:", error);
+    return 0;
+  }
+}
+
 //? ========== ALL_EPISODES FUNCTIONS ==========
 
 // Add or update an episode in all_episodes
@@ -324,6 +399,29 @@ export async function deleteFromAllEpisodes(id) {
   } catch (error) {
     console.error("Error deleting episode from all_episodes:", error);
     return false;
+  }
+}
+
+export async function getAllEpisodesByIdPrefix(prefix) {
+  try {
+    const episodes = await db.all_episodes
+      .where("id")
+      .startsWith(prefix)
+      .toArray();
+    return episodes;
+  } catch (error) {
+    console.error("Error getting all_episodes by ID prefix:", error);
+    return [];
+  }
+}
+
+export async function deleteAllEpisodesByIdPrefix(prefix) {
+  try {
+    const count = await db.all_episodes.where("id").startsWith(prefix).delete();
+    return count;
+  } catch (error) {
+    console.error("Error deleting all_episodes by ID prefix:", error);
+    return 0;
   }
 }
 

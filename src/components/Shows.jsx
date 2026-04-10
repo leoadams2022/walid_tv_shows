@@ -14,14 +14,22 @@ import {
   ModalFooter,
   ModalHeader,
 } from "flowbite-react";
-import { addShow, getShowById } from "../database/db";
+import {
+  addShow,
+  deleteAllEpisodesByIdPrefix,
+  deleteEpisodeInfoByIdPrefix,
+  deleteSeasonsInfoByIdPrefix,
+  deleteShowInfoByIdPrefix,
+  getShowById,
+} from "../database/db";
+import initial_shows from "../constants/initial_shows";
 
 export default function Shows() {
   const [openModal, setOpenModal] = React.useState(false);
   const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
   const [openResetModal, setOpenResetModal] = React.useState(false);
   const [showIdToDelete, setShowIdToDelete] = React.useState(null);
-  const [addingNewShowError, setAddingNewShowError] = React.useState(null);
+  const [errorStr, setErrorStr] = React.useState(null);
 
   const {
     shows,
@@ -31,6 +39,11 @@ export default function Shows() {
     removeShowById,
     isFullScreen,
     resetShows,
+    setSeason,
+    setEpisode,
+    setProgress,
+    setSeasonToView,
+    setEpisodeToView,
   } = useStore(
     useShallow((s) => ({
       shows: s.shows,
@@ -40,6 +53,11 @@ export default function Shows() {
       removeShowById: s.removeShowById,
       isFullScreen: s.isFullScreen,
       resetShows: s.resetShows,
+      setSeason: s.setSeason,
+      setEpisode: s.setEpisode,
+      setProgress: s.setProgress,
+      setSeasonToView: s.setSeasonToView,
+      setEpisodeToView: s.setEpisodeToView,
     })),
   );
   const [data, setData] = React.useState(null);
@@ -58,7 +76,7 @@ export default function Shows() {
       alert("Show already exists");
       return;
     }
-    setAddingNewShowError(null);
+    setErrorStr(null);
     try {
       await getTVDetails(newShowId);
 
@@ -67,24 +85,68 @@ export default function Shows() {
       setShowIdInput("");
     } catch (error) {
       console.error("Error adding show:", error.status);
-      setAddingNewShowError(
-        "Was not able to fetch show info for show id: " + newShowId,
-      );
+      setErrorStr("Was not able to fetch show info for show id: " + newShowId);
     } finally {
       setTimeout(() => {
-        setAddingNewShowError(null);
+        setErrorStr(null);
       }, 5000);
     }
   };
 
-  const deleteShowById = () => {
-    removeShowById(showId);
-    setOpenDeleteModal(false);
+  const deleteShowById = async () => {
+    try {
+      await deleteShowInfoByIdPrefix(String(showIdToDelete));
+      await deleteSeasonsInfoByIdPrefix(String(showIdToDelete));
+      await deleteEpisodeInfoByIdPrefix(String(showIdToDelete));
+      await deleteAllEpisodesByIdPrefix(String(showIdToDelete));
+      removeShowById(showIdToDelete);
+      setOpenDeleteModal(false);
+      if (showId === showIdToDelete) {
+        setShowId(null);
+        setSeason(null);
+        setEpisode(null);
+        setProgress(0);
+        setSeasonToView(null);
+        setEpisodeToView(null);
+      }
+    } catch (error) {
+      console.error("Error deleting show:", error);
+      setErrorStr("Error deleting show");
+    } finally {
+      setTimeout(() => {
+        setErrorStr(null);
+      }, 5000);
+    }
   };
 
   const onAddNewShowModalClose = () => {
     setOpenModal(false);
     setShowIdInput("");
+  };
+
+  const handleResetShows = async () => {
+    try {
+      const showsToDelete = data.filter(
+        (show) => !initial_shows.find((s) => s.id === show.id),
+      );
+      const deletePromises = showsToDelete.map(async (show) => {
+        await deleteShowInfoByIdPrefix(String(show.id));
+        await deleteSeasonsInfoByIdPrefix(String(show.id));
+        await deleteEpisodeInfoByIdPrefix(String(show.id));
+        await deleteAllEpisodesByIdPrefix(String(show.id));
+      });
+      await Promise.all(deletePromises);
+
+      resetShows();
+      setOpenResetModal(false);
+    } catch (error) {
+      console.error("Error resetting shows:", error);
+      setErrorStr("Error resetting shows");
+    } finally {
+      setTimeout(() => {
+        setErrorStr(null);
+      }, 5000);
+    }
   };
 
   React.useEffect(() => {
@@ -204,12 +266,15 @@ export default function Shows() {
         <MdOutlineAddToQueue />
       </button>
       {/* reset shows button */}
-      <button
-        className={`${isFullScreen ? "hidden" : "flex"} fixed bottom-4 right-4 w-12 h-12 rounded-full bg-pop text-pop p-2  items-center justify-center text-2xl hover:scale-110 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl hover:ring-2 hover:ring-sky-500 cursor-pointer`}
-        onClick={() => setOpenResetModal(true)}
-      >
-        <MdOutlineResetTv />
-      </button>
+      {data.filter((show) => !initial_shows.find((s) => s.id === show.id))
+        .length || data.length < initial_shows.length ? (
+        <button
+          className={`${isFullScreen ? "hidden" : "flex"} fixed bottom-4 right-4 w-12 h-12 rounded-full bg-pop text-pop p-2  items-center justify-center text-2xl hover:scale-110 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl hover:ring-2 hover:ring-sky-500 cursor-pointer`}
+          onClick={() => setOpenResetModal(true)}
+        >
+          <MdOutlineResetTv />
+        </button>
+      ) : null}
       {/* add new show modal  */}
       <Modal
         dismissible
@@ -228,11 +293,7 @@ export default function Shows() {
               value={showIdInput}
               placeholder="TV Show TMDB ID"
             />
-            <div>
-              {addingNewShowError && (
-                <p className="text-red-500">{addingNewShowError}</p>
-              )}
-            </div>
+            <div>{errorStr && <p className="text-red-500">{errorStr}</p>}</div>
           </div>
         </ModalBody>
         <ModalFooter>
@@ -251,42 +312,75 @@ export default function Shows() {
         <ModalHeader>Reset Shows</ModalHeader>
         <ModalBody>
           <div className="space-y-6 text ">
-            <p>Are you sure you want to reset all shows?</p>
-            <div className="flex items-center justify-between">
-              <div className="overflow-x-auto scrollbar-hide">
-                <div className="flex gap-2 sm:gap-3 md:gap-4 min-w-max px-1">
-                  {data.map((s) => (
-                    <div
-                      key={s.id}
-                      className="flex flex-col items-center justify-center"
-                    >
-                      <img
-                        src={`https://image.tmdb.org/t/p/w500${s.backdrop_path}`}
-                        alt={s.name}
-                        className="h-12 md:h-22 lg:h-32 rounded-lg"
-                        onError={(e) => {
-                          e.target.src = `https://placehold.co/500?text=no+image`;
-                          e.target.onerror = null; // Prevent infinite loop if placeholder also fails
-                        }}
-                      />
-                      <p className="mt-2 text-sm md:text-base lg:text-xl font-bold">
-                        {s.name}
-                      </p>
+            <p>Are you sure you want to reset all shows? </p>
+            {data.filter((show) => !initial_shows.find((s) => s.id === show.id))
+              .length ? (
+              <>
+                <p>
+                  you will lose the following shows with all of their data and
+                  progress:
+                </p>
+
+                <div className="flex items-center justify-between">
+                  <div className="overflow-x-auto scrollbar-hide">
+                    <div className="flex gap-2 sm:gap-3 md:gap-4 min-w-max px-1">
+                      {data.map((s) => {
+                        const iniShowIds = initial_shows.map((s) => s.id);
+                        if (iniShowIds.includes(s.id)) return null;
+                        return (
+                          <div
+                            key={s.id}
+                            className="flex flex-col items-center justify-center"
+                          >
+                            <img
+                              src={`https://image.tmdb.org/t/p/w500${s.backdrop_path}`}
+                              alt={s.name}
+                              className="h-12 md:h-22 lg:h-32 rounded-lg"
+                              onError={(e) => {
+                                e.target.src = `https://placehold.co/500?text=no+image`;
+                                e.target.onerror = null; // Prevent infinite loop if placeholder also fails
+                              }}
+                            />
+                            <p className="mt-2 text-sm md:text-base lg:text-xl font-bold">
+                              {s.name}
+                            </p>
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
-            </div>
+              </>
+            ) : data.length < initial_shows.length ? (
+              <>
+                <p>the following shows will be readded to your library:</p>
+                <div className="flex items-center justify-between">
+                  <div className="overflow-x-auto scrollbar-hide">
+                    <div className="flex gap-2 sm:gap-3 md:gap-4 min-w-max px-1">
+                      {initial_shows.map((s) => {
+                        const iniShowIds = data.map((s) => s.id);
+                        if (iniShowIds.includes(s.id)) return null;
+                        return (
+                          <div
+                            key={s.id}
+                            className="flex flex-col items-center justify-center"
+                          >
+                            <p className="mt-2 text-sm md:text-base lg:text-xl font-bold">
+                              {s.name}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : null}
+            <div>{errorStr && <p className="text-red-500">{errorStr}</p>}</div>
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button
-            color="red"
-            onClick={() => {
-              resetShows();
-              setOpenResetModal(false);
-            }}
-          >
+          <Button color="red" onClick={handleResetShows}>
             Reset
           </Button>
           <Button onClick={() => setOpenResetModal(false)}>Cancel</Button>

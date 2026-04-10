@@ -72,6 +72,7 @@ const ShowInfo = () => {
     })();
   }, [showId]);
 
+  if (!showId) return <div>No Show Selected</div>;
   if (!data) return <div>Loading Show Info...</div>;
 
   // Main backdrop image

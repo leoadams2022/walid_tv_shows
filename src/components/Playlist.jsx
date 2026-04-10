@@ -187,6 +187,7 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
     })();
   }, [showId]);
 
+  if (!showId) return <div>No Show Selected</div>;
   if (!data) return <div>Loading Play List...</div>;
 
   return (

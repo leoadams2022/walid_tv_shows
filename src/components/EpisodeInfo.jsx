@@ -6,7 +6,7 @@ import useStore from "../zustand/useStore";
 import { useShallow } from "zustand/shallow";
 
 import { FaRegCirclePlay } from "react-icons/fa6";
-import { FaStar, FaVideo, FaClock } from "react-icons/fa";
+import { FaStar, FaVideo, FaClock, FaUsers } from "react-icons/fa";
 import { GrFormNextLink } from "react-icons/gr";
 
 import { getTVEpisodeDetails, getTVSeasonDetails } from "../tmdb/tv";
@@ -264,7 +264,7 @@ const EpisodeInfo = () => {
         </TabItem>
 
         {/* guest_stars */}
-        <TabItem title="Guest Stars" icon={FaVideo}>
+        <TabItem title="Guests" icon={FaUsers}>
           <Card>
             <div>
               <h2 className="text-2xl font-semibold mb-4">Crew</h2>
