@@ -186,7 +186,7 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
   return (
     <div
       ref={episodesListRef}
-      className="py-4 px-6 w-full h-[calc(100svh-4rem)] overflow-y-auto bg flex flex-col gap-4 relative"
+      className="py-4 px-6 w-full h-[calc(100svh-5rem)] overflow-y-auto bg flex flex-col gap-4 relative"
     >
       {/* Episodes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
