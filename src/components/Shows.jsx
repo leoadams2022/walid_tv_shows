@@ -44,6 +44,7 @@ export default function Shows() {
     setProgress,
     setSeasonToView,
     setEpisodeToView,
+    setIsPlaying,
   } = useStore(
     useShallow((s) => ({
       shows: s.shows,
@@ -58,10 +59,18 @@ export default function Shows() {
       setProgress: s.setProgress,
       setSeasonToView: s.setSeasonToView,
       setEpisodeToView: s.setEpisodeToView,
+      setIsPlaying: s.setIsPlaying,
     })),
   );
   const [data, setData] = React.useState(null);
   const [showIdInput, setShowIdInput] = React.useState(null);
+
+  const handleSelectShowId = (shId) => {
+    setShowId(shId);
+    setSeason(null);
+    setEpisode(null);
+    setIsPlaying(false);
+  };
 
   const addNewShowById = async () => {
     const newShowId = Number(showIdInput);
@@ -200,7 +209,7 @@ export default function Shows() {
       >
         {data.map((s) => (
           <div
-            onClick={() => setShowId(s.id)}
+            onClick={() => handleSelectShowId(s.id)}
             key={s.id}
             className={`w-82 rounded-lg shadow-lg relative cursor-pointer hover:scale-110 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl ${showId === s.id ? "ring-2 ring-sky-500" : ""}`}
           >

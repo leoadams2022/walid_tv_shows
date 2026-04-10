@@ -184,6 +184,8 @@ const useStore = create(
 
       setDuration: (duration) => set({ duration }),
 
+      setIsPlaying: (isPlaying) => set({ isPlaying }),
+
       stopPlaying: () => {
         const { season, episode, shows, showId } = get();
         set({

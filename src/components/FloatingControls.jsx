@@ -6,6 +6,8 @@ import { BiSolidSlideshow } from "react-icons/bi";
 import SleepTimerFloatingButton from "./SleepTimerFloatingButton";
 import SettingsFloatingButton from "./SettingsFloatingButton";
 import FloatingButton from "./FloatingButton";
+import useStore from "../zustand/useStore";
+import { useShallow } from "zustand/shallow";
 
 const FloatingControls = ({
   isVisible,
@@ -18,6 +20,12 @@ const FloatingControls = ({
   stopPlaying,
   playLastPlayedEpisode,
 }) => {
+  const { lastPlayedSeason, lastPlayedEpisode } = useStore(
+    useShallow((s) => ({
+      lastPlayedSeason: s.lastPlayedSeason,
+      lastPlayedEpisode: s.lastPlayedEpisode,
+    })),
+  );
   if (!isVisible) return null;
 
   return (
@@ -58,7 +66,7 @@ const FloatingControls = ({
             <BiSolidSlideshow className="size-5 lg:size-6 " />
           </FloatingButton>
         </>
-      ) : (
+      ) : lastPlayedEpisode !== null && lastPlayedSeason !== null ? (
         <>
           {/* play last played episode button  */}
           <FloatingButton
@@ -77,7 +85,7 @@ const FloatingControls = ({
             <BiSolidSlideshow className="size-5 lg:size-6 " />
           </FloatingButton>
         </>
-      )}
+      ) : null}
 
       {/* Scroll to top button */}
       <FloatingButton
