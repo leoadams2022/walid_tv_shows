@@ -276,7 +276,9 @@ export default function Shows() {
       </button>
       {/* reset shows button */}
       {data.filter((show) => !initial_shows.find((s) => s.id === show.id))
-        .length || data.length < initial_shows.length ? (
+        .length ||
+      initial_shows.filter((s) => !data.find((d) => d.id === s.id)).length >
+        0 ? (
         <button
           className={`${isFullScreen ? "hidden" : "flex"} fixed bottom-4 right-4 w-12 h-12 rounded-full bg-pop text-pop p-2  items-center justify-center text-2xl hover:scale-110 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl hover:ring-2 hover:ring-sky-500 cursor-pointer`}
           onClick={() => setOpenResetModal(true)}
@@ -361,7 +363,8 @@ export default function Shows() {
                 </div>
               </>
             ) : null}
-            {data.length < initial_shows.length ? (
+            {initial_shows.filter((s) => !data.find((d) => d.id === s.id))
+              .length > 0 ? (
               <>
                 <p>the following shows will be readded to your library:</p>
                 <div className="flex items-center justify-between">
