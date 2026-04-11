@@ -35,8 +35,10 @@ const useStore = create(
       isAutoPlay: true,
       isAutoPlayNext: true,
       hideSpecials: false, // setHideSpecials
+      autoScrollToNewPlayedEpisode: true, // setAutoScrollToNewPlayedEpisode
 
       // Timer
+      startTimerAutomatically: false, // setStartTimerAutomatically
       timer: null, // in minutes or null for off
       remainingTime: null, // in milliseconds
       timerInterval: null, // Store the interval ID
@@ -225,6 +227,15 @@ const useStore = create(
         set({ hideSpecials });
       },
 
+      setAutoScrollToNewPlayedEpisode: (autoScrollToNewPlayedEpisode) => {
+        set({ autoScrollToNewPlayedEpisode });
+      },
+
+      // Timer
+      setStartTimerAutomatically: (startTimerAutomatically) => {
+        set({ startTimerAutomatically });
+      },
+
       setTimer: (timer) => set({ timer }),
 
       setRemainingTime: (remainingTime) => set({ remainingTime }),
@@ -296,10 +307,12 @@ const useStore = create(
     }),
     {
       name: "timer-storage",
-      // Don't persist timer-related state
-      // partialize: (state) => ({
-
-      // }),
+      partialize: (state) => {
+        // Omit 'isFullScreen' from the persisted object so when the user reload the page the app will not be in full screen mode so we need to reset it to false
+        // eslint-disable-next-line no-unused-vars
+        const { isFullScreen, ...stateToPersist } = state;
+        return stateToPersist;
+      },
     },
   ),
 );

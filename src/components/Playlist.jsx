@@ -35,6 +35,11 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
     lastPlayedEpisode,
     showId,
     hideSpecials,
+    autoScrollToNewPlayedEpisode,
+    remainingTime,
+    startTimerAutomatically,
+    startTimer,
+    stopTimer,
   } = useStore(
     useShallow((s) => ({
       season: s.season,
@@ -50,6 +55,11 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
       lastPlayedEpisode: s.lastPlayedEpisode,
       showId: s.showId,
       hideSpecials: s.hideSpecials,
+      autoScrollToNewPlayedEpisode: s.autoScrollToNewPlayedEpisode,
+      remainingTime: s.remainingTime,
+      startTimerAutomatically: s.startTimerAutomatically,
+      startTimer: s.startTimer,
+      stopTimer: s.stopTimer,
     })),
   );
   // const getPlayerTime = useStore(useShallow((s) => s.getPlayerTime()));
@@ -73,6 +83,9 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
   //   [],
   // );
   const playEpisode = (ep) => {
+    if (remainingTime === null && startTimerAutomatically) {
+      startTimer(60);
+    }
     setProgress(0);
     setSeason(ep.season_number);
     setEpisode(ep.episode_number);
@@ -101,11 +114,17 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
       alert("Lst played episode is a Specials and they are hidden");
       return;
     }
+    if (remainingTime === null && startTimerAutomatically) {
+      startTimer(60);
+    }
     setSeason(lastPlayedSeason);
     setEpisode(lastPlayedEpisode);
   };
 
   const stopPlaying = () => {
+    if (remainingTime) {
+      stopTimer();
+    }
     setSeason(null);
     setEpisode(null);
   };
@@ -186,6 +205,19 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
       setData(all_episodes);
     })();
   }, [showId]);
+
+  React.useEffect(() => {
+    if (autoScrollToNewPlayedEpisode && season && episode) {
+      console.log("autoScrollToNewPlayedEpisode");
+      scrollToElementById(`s${season}e${episode}`, 0, "auto");
+    }
+  }, [
+    autoScrollToNewPlayedEpisode,
+    episode,
+    scrollToElementById,
+    season,
+    data, // added so the useEffect will run when data changes
+  ]);
 
   if (!showId) return <div>No Show Selected</div>;
   if (!data) return <div>Loading Play List...</div>;

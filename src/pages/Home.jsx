@@ -96,6 +96,8 @@ export default function Home() {
     remainingTime,
     showId,
     hideSpecials,
+    startTimerAutomatically,
+    startTimer,
   } = useStore(
     useShallow((s) => ({
       showSidebar: s.showSidebar,
@@ -112,6 +114,8 @@ export default function Home() {
       remainingTime: s.remainingTime,
       showId: s.showId,
       hideSpecials: s.hideSpecials,
+      startTimerAutomatically: s.startTimerAutomatically,
+      startTimer: s.startTimer,
     })),
   );
   const getFormatRemainingTime = useStore(
@@ -158,6 +162,9 @@ export default function Home() {
 
     if (nextEpisode) {
       // Move to next episode in same season
+      if (remainingTime === null && startTimerAutomatically) {
+        startTimer(60);
+      }
       setProgress(0);
       setTimeout(() => {
         setEpisode(episode + 1);
@@ -178,6 +185,9 @@ export default function Home() {
       }
 
       if (nextEpisode) {
+        if (remainingTime === null && startTimerAutomatically) {
+          startTimer(60);
+        }
         setProgress(0);
         setTimeout(() => {
           setSeason(nextEpisode.season_number);
@@ -189,6 +199,9 @@ export default function Home() {
   const playPreviousEpisode = () => {
     // 1. If we aren't at the first episode, just go back one
     if (episode > 1) {
+      if (remainingTime === null && startTimerAutomatically) {
+        startTimer(60);
+      }
       setProgress(0);
       setTimeout(() => {
         setEpisode(episode - 1);
@@ -209,6 +222,9 @@ export default function Home() {
       }
 
       if (previousEpisode) {
+        if (remainingTime === null && startTimerAutomatically) {
+          startTimer(60);
+        }
         setProgress(0);
         setTimeout(() => {
           setSeason(previousEpisode.season_number);

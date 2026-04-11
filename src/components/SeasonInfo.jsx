@@ -28,6 +28,9 @@ const SeasonInfo = () => {
     setShowSidebar,
     setProgress,
     showId,
+    remainingTime,
+    startTimerAutomatically,
+    startTimer,
   } = useStore(
     useShallow((s) => ({
       season: s.season,
@@ -40,6 +43,9 @@ const SeasonInfo = () => {
       setShowSidebar: s.setShowSidebar,
       setProgress: s.setProgress,
       showId: s.showId,
+      remainingTime: s.remainingTime,
+      startTimerAutomatically: s.startTimerAutomatically,
+      startTimer: s.startTimer,
     })),
   );
   //! HIMYM_SHOW_DETAILS
@@ -114,6 +120,9 @@ const SeasonInfo = () => {
     e.stopPropagation();
     if (season === seasonToView && episode === ep.episode_number) return;
     // console.log("play button");
+    if (remainingTime === null && startTimerAutomatically) {
+      startTimer(60);
+    }
     setProgress(0);
     setSeason(seasonToView);
     setEpisode(ep.episode_number);

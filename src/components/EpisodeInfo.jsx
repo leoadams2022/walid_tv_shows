@@ -27,6 +27,9 @@ const EpisodeInfo = () => {
     setShowSidebar,
     setProgress,
     showId,
+    remainingTime,
+    startTimerAutomatically,
+    startTimer,
   } = useStore(
     useShallow((s) => ({
       season: s.season,
@@ -39,6 +42,9 @@ const EpisodeInfo = () => {
       setShowSidebar: s.setShowSidebar,
       setProgress: s.setProgress,
       showId: s.showId,
+      remainingTime: s.remainingTime,
+      startTimerAutomatically: s.startTimerAutomatically,
+      startTimer: s.startTimer,
     })),
   );
 
@@ -152,6 +158,9 @@ const EpisodeInfo = () => {
                 if (season === seasonToView && episode === data.episode_number)
                   return;
                 // console.log("play button");
+                if (remainingTime === null && startTimerAutomatically) {
+                  startTimer(60);
+                }
                 setProgress(0);
                 setSeason(seasonToView);
                 setEpisode(episodeToView);

@@ -27,7 +27,7 @@ export const useScrollToTop = (elementRef, threshold = 300) => {
 
   // New: Scroll to element by ID within the scrollable container
   const scrollToElementById = useCallback(
-    (elementId, offset = 0) => {
+    (elementId, offset = 0, behavior = "smooth") => {
       if (!elementRef?.current) return;
 
       const container = elementRef.current;
@@ -42,7 +42,7 @@ export const useScrollToTop = (elementRef, threshold = 300) => {
 
       container.scrollTo({
         top: targetPosition - offset,
-        behavior: "smooth",
+        behavior,
       });
     },
     [elementRef],
