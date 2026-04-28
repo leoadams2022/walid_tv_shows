@@ -155,13 +155,19 @@ const EpisodeInfo = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                if (season === seasonToView && episode === data.episode_number)
+                if (
+                  season === seasonToView &&
+                  episode === data.episode_number
+                ) {
+                  setShowSidebar(false);
                   return;
+                }
                 // console.log("play button");
                 if (remainingTime === null && startTimerAutomatically) {
                   startTimer(60);
                 }
-                setProgress(0);
+                // we only reset progress if we are switching episodes or seasons while playing if nothing is playing we keep the progress so when the user clicks play it will resume from where they left
+                if (season !== null && episode !== null) setProgress(0);
                 setSeason(seasonToView);
                 setEpisode(episodeToView);
                 setShowSidebar(false);

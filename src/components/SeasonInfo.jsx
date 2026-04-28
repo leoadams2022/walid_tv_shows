@@ -31,6 +31,8 @@ const SeasonInfo = () => {
     remainingTime,
     startTimerAutomatically,
     startTimer,
+    lastPlayedSeason,
+    lastPlayedEpisode,
   } = useStore(
     useShallow((s) => ({
       season: s.season,
@@ -46,6 +48,8 @@ const SeasonInfo = () => {
       remainingTime: s.remainingTime,
       startTimerAutomatically: s.startTimerAutomatically,
       startTimer: s.startTimer,
+      lastPlayedSeason: s.lastPlayedSeason,
+      lastPlayedEpisode: s.lastPlayedEpisode,
     })),
   );
   //! HIMYM_SHOW_DETAILS
@@ -118,12 +122,16 @@ const SeasonInfo = () => {
 
   const playEpisode = (e, ep) => {
     e.stopPropagation();
-    if (season === seasonToView && episode === ep.episode_number) return;
+    if (season === seasonToView && episode === ep.episode_number) {
+      setShowSidebar(false);
+      return;
+    }
     // console.log("play button");
     if (remainingTime === null && startTimerAutomatically) {
       startTimer(60);
     }
-    setProgress(0);
+    // we only reset progress if we are switching episodes or seasons while playing if nothing is playing we keep the progress so when the user clicks play it will resume from where they left
+    if (season !== null && episode !== null) setProgress(0);
     setSeason(seasonToView);
     setEpisode(ep.episode_number);
     setShowSidebar(false);
@@ -211,11 +219,11 @@ const SeasonInfo = () => {
             {data.episodes.map((ep) => (
               <Card
                 onClick={() => setEpisodeToView(ep.episode_number)}
-                className={`cursor-pointer ${season === seasonToView && episode === ep.episode_number ? "ring-2 ring-sky-500" : ""}`}
+                className={`cursor-pointer  ${season === ep.season_number && episode === ep.episode_number ? "border-2! border-sky-500!" : lastPlayedSeason === ep.season_number && lastPlayedEpisode === ep.episode_number ? "border-2! border-amber-500!" : "border border-gray-200 dark:border-gray-700 "}  `}
                 key={ep.id}
               >
-                <div className="flex gap-2 items-center">
-                  <div className="hidden md:block w-32 lg:w-42 rounded-lg shadow-lg relative">
+                <div className={`flex gap-2 items-center  `}>
+                  <div className="hidden md:block w-32 lg:w-42 rounded-lg shadow-lg relative ">
                     <img
                       src={`https://image.tmdb.org/t/p/w500${ep.still_path}`}
                       alt={ep.name}

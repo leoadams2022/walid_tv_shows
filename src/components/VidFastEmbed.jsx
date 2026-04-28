@@ -164,7 +164,7 @@ const VidFastEmbed = () => {
       autoNext: "false",
       nextButton: "false",
       startAt: useStore.getState().progress,
-      sub: "en",
+      // sub: "en",
       fullscreenButton: "false",
     });
     return `${baseUrl}${embedPath}?${params.toString()}`;

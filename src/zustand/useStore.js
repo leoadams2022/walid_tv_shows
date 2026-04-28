@@ -322,7 +322,12 @@ if (typeof window !== "undefined") {
   window.addEventListener("beforeunload", () => {
     const store = useStore.getState();
     if (store.timerInterval) {
-      clearInterval(store.timerInterval);
+      // on refresh/close, clear the timer interval to prevent memory leaks and stop playing
+      if (store.remainingTime) {
+        store.stopTimer();
+      }
+      store.setSeason(null);
+      store.setEpisode(null);
     }
   });
 }

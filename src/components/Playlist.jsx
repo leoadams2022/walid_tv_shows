@@ -83,10 +83,15 @@ const Playlist = ({ playNextEpisode, playPreviousEpisode }) => {
   //   [],
   // );
   const playEpisode = (ep) => {
+    if (ep.season_number === season && ep.episode_number === episode) {
+      setShowSidebar(false);
+      return;
+    }
     if (remainingTime === null && startTimerAutomatically) {
       startTimer(60);
     }
-    setProgress(0);
+    // we only reset progress if we are switching episodes or seasons while playing if nothing is playing we keep the progress so when the user clicks play it will resume from where they left
+    if (season !== null && episode !== null) setProgress(0);
     setSeason(ep.season_number);
     setEpisode(ep.episode_number);
     setShowSidebar(false);
